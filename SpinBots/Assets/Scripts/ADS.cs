@@ -1,21 +1,41 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 public class ADS : MonoBehaviour
 {
-    public GameManager gameManager; // Reference to the GameManager, assign in Unity Editor
-
-    private int player1Score = 0;
-    private int player2Score = 0;
-    
-
-    private string player1Choice = "Attack";
-    private string player2Choice = "Attack";
+    public GameManager gameManager; 
     
 
     private void Start()
     {
+        int rndP1 = Random.Range(0, 3);
+        switch(rndP1)
+        {
+            case 0:
+                gameManager.player1Choice = "Attack";
+                break;
+            case 1:
+                gameManager.player1Choice = "Defense";
+                break;
+            case 2:
+                gameManager.player1Choice = "Stamina";
+                break;
+        }
+        int rndP2 = Random.Range(0, 3);
+        switch (rndP2)
+        {
+            case 0:
+                gameManager.player2Choice = "Attack";
+                break;
+            case 1:
+                gameManager.player2Choice = "Defense";
+                break;
+            case 2:
+                gameManager.player2Choice = "Stamina";
+                break;
+        }
         StartCoroutine(Player1Turn());
         StartCoroutine(Player2Turn());
     }
@@ -24,9 +44,9 @@ public class ADS : MonoBehaviour
     {
         while (!gameManager.p1Ready)
         {
-            if (Input.GetKeyDown(KeyCode.A)) { player1Choice = "Attack"; Debug.Log("Player 1 chooses Attack"); }
-            if (Input.GetKeyDown(KeyCode.S)) { player1Choice = "Stamina"; Debug.Log("Player 1 chooses Stamina"); }
-            if (Input.GetKeyDown(KeyCode.D)) { player1Choice = "Defense"; Debug.Log("Player 1 chooses Defense"); }
+            if (Input.GetKeyDown(KeyCode.A)) { gameManager.player1Choice = "Attack"; Debug.Log("Player 1 chooses Attack"); }
+            if (Input.GetKeyDown(KeyCode.S)) { gameManager.player1Choice = "Defense"; Debug.Log("Player 1 chooses Defense"); }
+            if (Input.GetKeyDown(KeyCode.D)) { gameManager.player1Choice = "Stamina"; Debug.Log("Player 1 chooses Stamina"); }
 
             if (Input.GetKeyDown(KeyCode.E))
             {
@@ -36,6 +56,7 @@ public class ADS : MonoBehaviour
                 }
                     
                 gameManager.p1Ready = true;
+                
                 Debug.Log("Player 1 is ready");
                 if (!gameManager.p2Ready)
                 {
@@ -54,9 +75,9 @@ public class ADS : MonoBehaviour
     {
         while (!gameManager.p2Ready)
         {
-            if (Input.GetKeyDown(KeyCode.J)) { player2Choice = "Attack"; Debug.Log("Player 2 chooses Attack"); }
-            if (Input.GetKeyDown(KeyCode.K)) { player2Choice = "Stamina"; Debug.Log("Player 2 chooses Stamina"); }
-            if (Input.GetKeyDown(KeyCode.L)) { player2Choice = "Defense"; Debug.Log("Player 2 chooses Defense"); }
+            if (Input.GetKeyDown(KeyCode.J)) { gameManager.player2Choice = "Attack"; Debug.Log("Player 2 chooses Attack"); }
+            if (Input.GetKeyDown(KeyCode.K)) { gameManager.player2Choice = "Defense"; Debug.Log("Player 2 chooses Defense"); }
+            if (Input.GetKeyDown(KeyCode.L)) { gameManager.player2Choice = "Stamina"; Debug.Log("Player 2 chooses Stamina"); }
 
             if (Input.GetKeyDown(KeyCode.O))
             {
@@ -65,6 +86,7 @@ public class ADS : MonoBehaviour
                     StopCoroutine(CountdownForPlayer2());
                 }
                 gameManager.p2Ready = true;
+                
                 Debug.Log("Player 2 is ready");
                 if (!gameManager.p1Ready)
                 {
@@ -103,7 +125,7 @@ public class ADS : MonoBehaviour
         float timer = 3000f;
         while (timer > 0 && !gameManager.p2Ready)
         {
-            timer --;
+            timer--;
             //Debug.Log(timer);
             yield return null;
         }
@@ -117,50 +139,55 @@ public class ADS : MonoBehaviour
 
     private void EvaluateRound()
     {
-        string winner = "";
-        string winningType = "";
-        if (player1Choice == player2Choice)
+       
+            
+        
+        
+        if (gameManager.player1Choice == gameManager.player2Choice)
         {
+            gameManager.ADSWinner.text = "Round " + gameManager.roundCount + " is a draw";
             Debug.Log("Round draw!");
         }
-        else if ((player1Choice == "Attack" && player2Choice == "Stamina") ||
-                 (player1Choice == "Stamina" && player2Choice == "Defense") ||
-                 (player1Choice == "Defense" && player2Choice == "Attack"))
+        else if ((gameManager.player1Choice == "Attack" && gameManager.player2Choice == "Stamina") ||
+                 (gameManager.player1Choice == "Stamina" && gameManager.player2Choice == "Defense") ||
+                 (gameManager.player1Choice == "Defense" && gameManager.player2Choice == "Attack"))
         {
-            player1Score++;
-            winner = "Player1";
-            winningType = player1Choice;
-            Debug.Log("Player 1 wins the round with " + player1Choice + "!");
+            gameManager.player1Score++;
+            gameManager.winner = "Player1";
+            gameManager.winningType = gameManager.player1Choice;
+            gameManager.ADSWinner.text = "The winner for round " + gameManager.roundCount + " is:\n" + gameManager.winner + " with " + gameManager.winningType;
+            Debug.Log("Player 1 wins the round with " + gameManager.player1Choice + "!");
         }
         else
         {
-            player2Score++;
-            winner = "Player2";
-            winningType = player2Choice;
-            Debug.Log("Player 2 wins the round with " + player2Choice + "!");
+            gameManager.player2Score++;
+            gameManager.winner = "Player2";
+            gameManager.winningType = gameManager.player2Choice;
+            gameManager.ADSWinner.text = "The winner for round " + gameManager.roundCount + " is:\n" + gameManager.winner + " with " + gameManager.winningType;
+            Debug.Log("Player 2 wins the round with " + gameManager.player2Choice + "!");
         }
 
-        // Update stats in GameManager
-        gameManager.IncreaseStat(winner, winningType);
+        
+        gameManager.IncreaseStat(gameManager.winner, gameManager.winningType);
 
         gameManager.roundCount++;
-        if (gameManager.roundCount < 3)
+        if (gameManager.roundCount < 4)
         {
             ResetRound();
         }
         else
         {
-            // Determine overall winner and update stats
-            if (player1Score > player2Score)
+            
+            if (gameManager.player1Score > gameManager.player2Score)
             {
-                winner = "Player1";
+                gameManager.winner = "Player1";
             }
             else
             {
-                winner = "Player2";
+                gameManager.winner = "Player2";
             }
-            gameManager.UpdateOverallWinnerStats(winner);
-            Debug.Log("Game Over: Player 1 Score: " + player1Score + " - Player 2 Score: " + player2Score);
+            gameManager.UpdateOverallWinnerStats(gameManager.winner);
+            Debug.Log("Game Over: Player 1 Score: " + gameManager.player1Score + " - Player 2 Score: " + gameManager.player2Score);
         }
     }
 
@@ -169,15 +196,39 @@ public class ADS : MonoBehaviour
         StopAllCoroutines();
         gameManager.p1Ready = false;
         gameManager.p2Ready = false;
-        player1Choice = "Attack";
-        player2Choice = "Attack";
+        int rndP1 = Random.Range(0, 3);
+        switch (rndP1)
+        {
+            case 0:
+                gameManager.player1Choice = "Attack";
+                break;
+            case 1:
+                gameManager.player1Choice = "Defense";
+                break;
+            case 2:
+                gameManager.player1Choice = "Stamina";
+                break;
+        }
+        int rndP2 = Random.Range(0, 3);
+        switch (rndP2)
+        {
+            case 0:
+                gameManager.player2Choice = "Attack";
+                break;
+            case 1:
+                gameManager.player2Choice = "Defense";
+                break;
+            case 2:
+                gameManager.player2Choice = "Stamina";
+                break;
+        }
         Debug.Log("Next round starts now!");
         StartCoroutine(DelayBeforeNextRound());
         
     }
     private IEnumerator DelayBeforeNextRound()
     {
-        yield return new WaitForSecondsRealtime(3f);  // Short delay to allow input states to clear
+        yield return new WaitForSecondsRealtime(3f);  
         StartCoroutine(Player1Turn());
         StartCoroutine(Player2Turn());
     }

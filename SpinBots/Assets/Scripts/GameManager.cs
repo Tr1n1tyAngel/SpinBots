@@ -5,12 +5,18 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    public GameObject introPanel;
-    public GameObject botSelectionPanel;
-    public GameObject ADSPanel;
+    public GameObject introPanel, botSelectionPanel, ADSPanel, ADSP1Ready,ADSP2Ready, BGPanel, BGP1Ready, BGP2Ready;
 
+    public TextMeshProUGUI p1ChoiceTxt, p2ChoiceTxt, ADSP1ScoreTxt, ADSP2ScoreTxt, ADSRoundTxt, ADSWinner, BGRoundTxt, BGOutcomeTxt;
     public float battleTimer;
-    public int roundCount;
+    public bool ADS1Complete, BG1Complete;
+    //ADS
+    public int roundCount, player1Score, player2Score;
+    public string winner, winningType, player1Choice, player2Choice;
+    //BuffGame
+    public int bgRoundCount;
+    public string bgP1BuffList;
+    public string bgP2BuffList;
     //Player Confirms
     public bool p1Ready;
     public bool p2Ready;
@@ -23,8 +29,7 @@ public class GameManager : MonoBehaviour
     public bool p2AttackType;
     public bool p2DefenseType;
     public bool p2StaminaType;
-    public TextMeshProUGUI p1ChoiceTxt;
-    public TextMeshProUGUI p2ChoiceTxt;
+    
     //SpinBotStats
     public float p1AttackStat;
     public float p1DefenseStat;
@@ -39,6 +44,11 @@ public class GameManager : MonoBehaviour
         introPanel.SetActive(true);
         botSelectionPanel.SetActive(false);
         ADSPanel.SetActive(false);
+        ADSP1Ready.SetActive(false);
+        ADSP2Ready.SetActive(false);
+        BGPanel.SetActive(false);
+        BGP1Ready.SetActive(false);
+        BGP2Ready.SetActive(false);
         p1Ready = false;
         p2Ready = false;
         p1BotSelected = false;
@@ -55,13 +65,22 @@ public class GameManager : MonoBehaviour
         p2AttackStat = 0;
         p2DefenseStat = 0;
         p2StaminaStat = 0;
-        roundCount = 0;
+        roundCount = 1;
+        bgRoundCount = 1;
+        player1Score = 0;
+        player2Score = 0;
         battleTimer = 360;
         Time.timeScale = 0;
+        winner = null;
+        winningType = null;
+        bgP1BuffList = null;
+        bgP2BuffList = null;
+        ADS1Complete = false;
+        BG1Complete = false;
 
     }
 
-    // Update is called once per frame
+    
     void Update()
     {
         if(battleTimer > 0)
@@ -73,14 +92,23 @@ public class GameManager : MonoBehaviour
             Time.timeScale = 0;
             EndGame();
         }
-        if(battleTimer < 359)
+        if(battleTimer <=300 && ADS1Complete==false)
         {
             Time.timeScale = 0;
             ADSPanel.SetActive(true);
         }
+        if (battleTimer <= 240 && BG1Complete == false)
+        {
+            Time.timeScale = 0;
+            BGPanel.SetActive(true);
+        }
         IntroReadyCheck();
         BotSelectionCheck();
-        ADSDoneCheck();
+        ADSDisplay();
+        ADSReadyCheck();
+        StartCoroutine(ADSDoneCheck());
+        BGReadyCheck();
+        StartCoroutine(BGDoneCheck());
     }
 
     public void IntroReadyCheck()
@@ -121,20 +149,127 @@ public class GameManager : MonoBehaviour
         }
         if(p1Ready&&p2Ready&&botSelectionPanel.activeSelf)
         {
+            BotStats();
             botSelectionPanel.SetActive(false);
             Time.timeScale = 1f;
             p1Ready = false;
             p2Ready = false;
         }
     }
-    public void ADSDoneCheck()
+    public void ADSReadyCheck()
     {
-        if (p1Ready && p2Ready && ADSPanel.activeSelf && roundCount==3)
+        if(p1Ready)
         {
+            ADSP1Ready.SetActive(true);
+        }
+        else
+        {
+            ADSP1Ready.SetActive(false);
+        }
+        if (p2Ready)
+        {
+            ADSP2Ready.SetActive(true);
+        }
+        else
+        {
+            ADSP2Ready.SetActive(false);
+        }
+
+    }
+    public void BGReadyCheck()
+    {
+        if (p1Ready)
+        {
+           BGP1Ready.SetActive(true);
+        }
+        else
+        {
+            BGP1Ready.SetActive(false);
+        }
+        if (p2Ready)
+        {
+            BGP2Ready.SetActive(true);
+        }
+        else
+        {
+            BGP2Ready.SetActive(false);
+        }
+
+    }
+    IEnumerator ADSDoneCheck()
+    {
+        if (p1Ready && p2Ready && ADSPanel.activeSelf && roundCount == 4)
+        {
+            yield return new WaitForSecondsRealtime(3f); 
+
             ADSPanel.SetActive(false);
-            Time.timeScale= 1f;
+            ADS1Complete = true;
+            Time.timeScale = 1f; 
             p1Ready = false;
             p2Ready = false;
+            winner = "";
+            winningType = "";
+            roundCount = 0;
+            player1Score = 0;
+            player2Score = 0;
+            
+
+        }
+    }
+    IEnumerator BGDoneCheck()
+    {
+        if (p1Ready && p2Ready && BGPanel.activeSelf && bgRoundCount == 4)
+        {
+            yield return new WaitForSecondsRealtime(3f);
+
+            BGPanel.SetActive(false);
+            BG1Complete = true;
+            Time.timeScale = 1f;
+            p1Ready = false;
+            p2Ready = false;
+            bgRoundCount = 0;
+            bgP1BuffList = null;
+            bgP2BuffList = null;
+
+
+        }
+    }
+    public void ADSDisplay()
+    {
+        if(roundCount > 0)
+        {
+            ADSRoundTxt.text = "Round: " + roundCount;
+        }
+       
+        ADSP1ScoreTxt.text = "Score: " + player1Score;
+        ADSP2ScoreTxt.text = "Score: " + player2Score;
+        
+            if (roundCount == 4)
+            {
+                ADSWinner.text = "Game Over: Player 1 Score: " + player1Score + "\nPlayer 2 Score: " + player2Score;
+                if (player1Score > player2Score)
+                {
+                    ADSWinner.text = ADSWinner.text + "\nPlayer 1 Wins Overall";
+                }
+                else if (player1Score < player2Score)
+                {
+                    ADSWinner.text = ADSWinner.text + "\nPlayer 2 Wins overall";
+                }
+                else
+                {
+                    ADSWinner.text = ADSWinner.text + "\nNeither player won it was a draw overall";
+                }
+            }
+    }
+    public void BGDisplay()
+    {
+        if (roundCount > 0)
+        {
+            BGRoundTxt.text = "Round: " + roundCount;
+        }
+        if (roundCount == 4)
+        {
+            BGOutcomeTxt.text = "Player 1 got these buffs: " + bgP1BuffList + "\nPlayer 2 got these buffs:" + bgP2BuffList;
         }
     }
     public void IncreaseStat(string player, string type)
@@ -168,7 +303,45 @@ public class GameManager : MonoBehaviour
             p2StaminaStat += 0.25f;
         }
     }
-
+    public void BotStats()
+    {
+        if(p1AttackType)
+        {
+            p1AttackStat = 8;
+            p1DefenseStat = 3;
+            p1StaminaStat = 4;
+        }
+        else if(p1DefenseType)
+        {
+            p1AttackStat = 3;
+            p1DefenseStat = 8;
+            p1StaminaStat = 4;
+        }
+        else if(p1StaminaType) 
+        {
+            p1AttackStat = 4;
+            p1DefenseStat = 3;
+            p1StaminaStat = 8;
+        }
+        if (p2AttackType)
+        {
+            p2AttackStat = 8;
+            p2DefenseStat = 3;
+            p2StaminaStat = 4;
+        }
+        else if (p2DefenseType)
+        {
+            p2AttackStat = 3;
+            p2DefenseStat = 8;
+            p2StaminaStat = 4;
+        }
+        else if (p2StaminaType)
+        {
+            p2AttackStat = 4;
+            p2DefenseStat = 3;
+            p2StaminaStat = 8;
+        }
+    }
     public void EndGame()
     {
 
