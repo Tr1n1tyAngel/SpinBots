@@ -65,7 +65,7 @@ public class BuffGame : MonoBehaviour
         }
         else
         {
-            gameManager.BGOutcomeTxt.text = "Player 1 chose: " + gameManager.player1Choice + "\n Player 2 chose: " + gameManager.player2Choice + "\n their choices are the same both player gets the buff they wanted";
+            gameManager.BGOutcomeTxt.text = "Player 1 chose: " + gameManager.player1Choice + "\n Player 2 chose: " + gameManager.player2Choice + "\n their choices are the same neither player gets the buff they wanted";
         }
         gameManager.bgRoundCount++;
         if (gameManager.bgRoundCount < 4)

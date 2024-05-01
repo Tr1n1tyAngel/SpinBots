@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    public GameObject introPanel, botSelectionPanel, ADSPanel, ADSP1Ready,ADSP2Ready, BGPanel, BGP1Ready, BGP2Ready;
+    public GameObject introPanel, botSelectionPanel, ADSPanel, ADSP1Ready,ADSP2Ready, BGPanel, BGP1Ready, BGP2Ready, P1, P2;
 
     public TextMeshProUGUI p1ChoiceTxt, p2ChoiceTxt, ADSP1ScoreTxt, ADSP2ScoreTxt, ADSRoundTxt, ADSWinner, BGRoundTxt, BGOutcomeTxt;
     public float battleTimer;
@@ -38,6 +38,9 @@ public class GameManager : MonoBehaviour
     public float p2DefenseStat;
     public float p2StaminaStat;
 
+    //Random player spawning
+    public Vector3 areaCenter = new Vector3(0, 0, 0);  
+    public Vector3 areaSize = new Vector3(1f, 0, 1f);
     // Start is called before the first frame update
     void Start()
     {
@@ -49,6 +52,8 @@ public class GameManager : MonoBehaviour
         BGPanel.SetActive(false);
         BGP1Ready.SetActive(false);
         BGP2Ready.SetActive(false);
+        P1.SetActive(false);
+        P2.SetActive(false);
         p1Ready = false;
         p2Ready = false;
         p1BotSelected = false;
@@ -150,6 +155,9 @@ public class GameManager : MonoBehaviour
         if(p1Ready&&p2Ready&&botSelectionPanel.activeSelf)
         {
             BotStats();
+            P1.SetActive(true);
+            P2.SetActive(true);
+            SpawnPlayers();
             botSelectionPanel.SetActive(false);
             Time.timeScale = 1f;
             p1Ready = false;
@@ -341,6 +349,29 @@ public class GameManager : MonoBehaviour
             p2DefenseStat = 3;
             p2StaminaStat = 8;
         }
+        if(p1AttackStat<=0) { p1AttackStat = 0; }
+        if (p1DefenseStat <= 0) { p1DefenseStat = 0; }
+        if (p1StaminaStat <= 0) { p1StaminaStat = 0; }
+        if (p2AttackStat <= 0) { p2AttackStat = 0; }
+        if (p2DefenseStat <= 0) { p2DefenseStat = 0; }
+        if (p2StaminaStat <= 0) { p2StaminaStat = 0; }
+    }
+    void SpawnPlayers()
+    {
+        // Generate a random position within the defined area
+        float x1 = Random.Range(areaCenter.x - areaSize.x / 2, areaCenter.x + areaSize.x / 2);
+        float z1 = Random.Range(areaCenter.z - areaSize.z / 2, areaCenter.z + areaSize.z / 2);
+        float y1 = areaCenter.y+1;  // Assuming flat terrain; adjust if terrain is uneven
+        float x2 = Random.Range(areaCenter.x - areaSize.x / 2, areaCenter.x + areaSize.x / 2);
+        float z2 = Random.Range(areaCenter.z - areaSize.z / 2, areaCenter.z + areaSize.z / 2);
+        float y2 = areaCenter.y + 1;  // Assuming flat terrain; adjust if terrain is uneven
+
+        // Create the player instance at the generated position
+        Vector3 spawnPosition1 = new Vector3(x1, y1, z1);
+        P1.transform.position = spawnPosition1;
+
+        Vector3 spawnPosition2 = new Vector3(x2, y2, z2);
+        P2.transform.position = spawnPosition2;
     }
     public void EndGame()
     {

@@ -3565,7 +3565,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &553051396
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3586,6 +3586,8 @@ MonoBehaviour:
   BGPanel: {fileID: 899804327}
   BGP1Ready: {fileID: 300440446}
   BGP2Ready: {fileID: 1599707482}
+  P1: {fileID: 1965355266}
+  P2: {fileID: 1173514528}
   p1ChoiceTxt: {fileID: 136062492}
   p2ChoiceTxt: {fileID: 149399223}
   ADSP1ScoreTxt: {fileID: 331896744}
@@ -3623,6 +3625,8 @@ MonoBehaviour:
   p2AttackStat: 0
   p2DefenseStat: 0
   p2StaminaStat: 0
+  areaCenter: {x: 0, y: 0, z: 0}
+  areaSize: {x: 10, y: 0, z: 10}
 --- !u!4 &553051397
 Transform:
   m_ObjectHideFlags: 0
@@ -7153,15 +7157,15 @@ GameObject:
   - component: {fileID: 1173514533}
   - component: {fileID: 1173514532}
   - component: {fileID: 1173514531}
-  - component: {fileID: 1173514530}
   - component: {fileID: 1173514529}
+  - component: {fileID: 1173514535}
   m_Layer: 0
   m_Name: P2SpinBot
   m_TagString: SpinBot
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!136 &1173514529
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -7185,21 +7189,6 @@ CapsuleCollider:
   m_Height: 1.9999999
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &1173514530
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1173514528}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3db6ffcaaf34313428fcd004daa6204a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  initialSpinForce: 400
-  movementSpeed: 5
-  curveMagnitude: 1
 --- !u!54 &1173514531
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -7208,7 +7197,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1173514528}
   serializedVersion: 4
-  m_Mass: 1
+  m_Mass: 5
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -7292,6 +7281,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1173514535
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1173514528}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 150668f1e17944c438ab39412476680b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameManager: {fileID: 553051396}
+  initialSpinForce: 500
+  movementSpeed: 5
+  curveMagnitude: 3
 --- !u!1 &1179946636
 GameObject:
   m_ObjectHideFlags: 0
@@ -10091,7 +10096,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!54 &1965355267
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -10100,7 +10105,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1965355266}
   serializedVersion: 4
-  m_Mass: 1
+  m_Mass: 5
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -10196,9 +10201,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3db6ffcaaf34313428fcd004daa6204a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initialSpinForce: 400
+  gameManager: {fileID: 553051396}
+  initialSpinForce: 500
   movementSpeed: 5
-  curveMagnitude: 1
+  curveMagnitude: 3
 --- !u!136 &1965355273
 CapsuleCollider:
   m_ObjectHideFlags: 0
