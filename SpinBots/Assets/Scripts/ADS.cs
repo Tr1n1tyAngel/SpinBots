@@ -39,7 +39,11 @@ public class ADS : MonoBehaviour
         StartCoroutine(Player1Turn());
         StartCoroutine(Player2Turn());
     }
-
+    private void Update()
+    {
+        StartCoroutine(Player1Turn());
+        StartCoroutine(Player2Turn());
+    }
     private IEnumerator Player1Turn()
     {
         while (!gameManager.p1Ready)

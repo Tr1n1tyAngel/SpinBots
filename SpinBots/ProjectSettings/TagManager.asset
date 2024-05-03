@@ -4,8 +4,11 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - SpinBot
   - ArenaWall
+  - P1SpinBot
+  - P2SpinBot
+  - Ground
+  - OutOfBounds
   layers:
   - Default
   - TransparentFX

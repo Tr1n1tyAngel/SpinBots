@@ -2,14 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+
 
 public class GameManager : MonoBehaviour
 {
-    public GameObject introPanel, botSelectionPanel, ADSPanel, ADSP1Ready,ADSP2Ready, BGPanel, BGP1Ready, BGP2Ready, P1, P2;
+    public GameObject introPanel, botSelectionPanel, obstacleSelectionPanel, obsP1Ready, obsP2Ready, p1SelectedObstacle, p2SelectedObstacle, powerupSelectionPanel, powP1Ready, powP2Ready, p1SelectedPowerup, p2SelectedPowerup, ADSPanel, ADSP1Ready, ADSP2Ready, BGPanel, BGP1Ready, BGP2Ready, P1, P2;
 
-    public TextMeshProUGUI p1ChoiceTxt, p2ChoiceTxt, ADSP1ScoreTxt, ADSP2ScoreTxt, ADSRoundTxt, ADSWinner, BGRoundTxt, BGOutcomeTxt;
-    public float battleTimer;
-    public bool ADS1Complete, BG1Complete;
+
+    public TextMeshProUGUI p1ChoiceTxt, p2ChoiceTxt, ADSP1ScoreTxt, ADSP2ScoreTxt, ADSRoundTxt, ADSWinner, BGRoundTxt, BGOutcomeTxt, p1ObstacleTxt, p2ObstacleTxt, p1PowerupTxt, p2PowerupTxt, finalWinnerResultTxt;
+    public float battleTimer ,p1StatsSum, p2StatsSum;
+    public bool ADS1Complete, ADS2Complete, BG1Complete, BG2Complete, op1Complete, op2Complete, op3Complete, op4Complete, op5Complete, op6Complete, p1CubeRemovedFromArray, p2CubeRemovedFromArray, p1CylinderRemovedFromArray, p2CylinderRemovedFromArray, p1SphereRemovedFromArray, p2SphereRemovedFromArray, p1ChargeRemovedFromArray, p2ChargeRemovedFromArray, p1ShieldRemovedFromArray, p2ShieldRemovedFromArray, p1SpeedBoostRemovedFromArray, p2SpeedBoostRemovedFromArray;
     //ADS
     public int roundCount, player1Score, player2Score;
     public string winner, winningType, player1Choice, player2Choice;
@@ -29,7 +32,7 @@ public class GameManager : MonoBehaviour
     public bool p2AttackType;
     public bool p2DefenseType;
     public bool p2StaminaType;
-    
+
     //SpinBotStats
     public float p1AttackStat;
     public float p1DefenseStat;
@@ -38,9 +41,27 @@ public class GameManager : MonoBehaviour
     public float p2DefenseStat;
     public float p2StaminaStat;
 
+    //SpinBotController
+    public float p1InitialSpinForce, p1MovementSpeed, p1CurveMagnitude, p2InitialSpinForce, p2MovementSpeed, p2CurveMagnitude, p1CurrentSpinForce, p1CurrentMovementSpeed, p1SpinDecayPerStep, p1MovementDecayPerStep, p1LastAttackStat, p1LastDefenseStat, p2CurrentSpinForce, p2CurrentMovementSpeed, p2SpinDecayPerStep, p2MovementDecayPerStep, p2LastAttackStat, p2LastDefenseStat;
+    public Rigidbody p1Rigidbody, p2Rigidbody;
+    public bool isP1Grounded, isP2Grounded;
+
     //Random player spawning
-    public Vector3 areaCenter = new Vector3(0, 0, 0);  
-    public Vector3 areaSize = new Vector3(1f, 0, 1f);
+    public Transform spawnCenter;
+    public float spawnRadius;
+    //Powerups
+    public float chargeForce;
+    public bool p1Charge, p2Charge, p1Shield, p2Shield;
+    //Powerup Selection
+    public bool p1PowerupSelected, p2PowerupSelected, p1ChargeSelected, p1ShieldSelected, p1SpeedBoostSelected, p2ChargeSelected, p2ShieldSelected, p2SpeedBoostSelected;
+    public List<GameObject> charge = new List<GameObject>(12);
+    public List<GameObject> shield = new List<GameObject>(12);
+    public List<GameObject> speedBoost = new List<GameObject>(12);
+    //ObstacleSelection
+    public bool p1ObstacleSelected, p2ObstacleSelected, p1CubeSelected, p1CylinderSelected, p1SphereSelected, p2CubeSelected, p2CylinderSelected, p2SphereSelected;
+    public List<GameObject> cube = new List<GameObject>(12);
+    public List<GameObject> cylinder = new List<GameObject>(12);
+    public List<GameObject> sphere = new List<GameObject>(12);
     // Start is called before the first frame update
     void Start()
     {
@@ -52,6 +73,12 @@ public class GameManager : MonoBehaviour
         BGPanel.SetActive(false);
         BGP1Ready.SetActive(false);
         BGP2Ready.SetActive(false);
+        obstacleSelectionPanel.SetActive(false);
+        obsP1Ready.SetActive(false);
+        obsP2Ready.SetActive(false);
+        powerupSelectionPanel.SetActive(false);
+        powP1Ready.SetActive(false);
+        powP2Ready.SetActive(false);
         P1.SetActive(false);
         P2.SetActive(false);
         p1Ready = false;
@@ -64,6 +91,8 @@ public class GameManager : MonoBehaviour
         p2DefenseType = false;
         p1StaminaType = false;
         p2StaminaType = false;
+        p1Charge = false;
+        p2Charge = false;
         p1AttackStat = 0;
         p1DefenseStat = 0;
         p1StaminaStat = 0;
@@ -75,6 +104,12 @@ public class GameManager : MonoBehaviour
         player1Score = 0;
         player2Score = 0;
         battleTimer = 360;
+        p1InitialSpinForce = 500f;
+        p1MovementSpeed = 5f;
+        p2InitialSpinForce = 500f;
+        p2MovementSpeed = 5f;
+        chargeForce = 25f;
+        spawnRadius = 4f;
         Time.timeScale = 0;
         winner = null;
         winningType = null;
@@ -82,40 +117,137 @@ public class GameManager : MonoBehaviour
         bgP2BuffList = null;
         ADS1Complete = false;
         BG1Complete = false;
+        Debug.Log(cube.Count);
 
+        foreach (GameObject obj in cube)
+        {
+            if (obj != null)
+                obj.SetActive(false);
+        }
+        foreach (GameObject obj in cylinder)
+        {
+            if (obj != null)
+                obj.SetActive(false);
+        }
+        foreach (GameObject obj in sphere)
+        {
+            if (obj != null)
+                obj.SetActive(false);
+        }
     }
 
-    
+
     void Update()
     {
-        if(battleTimer > 0)
+        if (battleTimer > 0)
         {
-            battleTimer-=Time.deltaTime;
+            battleTimer -= Time.deltaTime;
         }
         else
         {
             Time.timeScale = 0;
             EndGame();
         }
-        if(battleTimer <=300 && ADS1Complete==false)
+        if (battleTimer <= 330 && op1Complete == false && !obstacleSelectionPanel.activeSelf)
+        {
+            Time.timeScale = 0;
+            obstacleSelectionPanel.SetActive(true);
+        }
+        if (battleTimer <= 300 && ADS1Complete == false && !ADSPanel.activeSelf)
         {
             Time.timeScale = 0;
             ADSPanel.SetActive(true);
+            ADS1Complete = true;
         }
-        if (battleTimer <= 240 && BG1Complete == false)
+        if (battleTimer <= 270 && op2Complete == false && !obstacleSelectionPanel.activeSelf)
+        {
+            Time.timeScale = 0;
+            obstacleSelectionPanel.SetActive(true);
+        }
+        if (battleTimer <= 240 && BG1Complete == false && !BGPanel.activeSelf)
         {
             Time.timeScale = 0;
             BGPanel.SetActive(true);
+            BG1Complete = true;
         }
+        if (battleTimer <= 210 && op3Complete == false && !obstacleSelectionPanel.activeSelf)
+        {
+            Time.timeScale = 0;
+            obstacleSelectionPanel.SetActive(true);
+        }
+        if (battleTimer <= 180 && op4Complete == false && !obstacleSelectionPanel.activeSelf)
+        {
+            Time.timeScale = 0;
+            obstacleSelectionPanel.SetActive(true);
+        }
+        if (battleTimer <= 150 && op5Complete == false && !obstacleSelectionPanel.activeSelf)
+        {
+            Time.timeScale = 0;
+            obstacleSelectionPanel.SetActive(true);
+        }
+        if (battleTimer <= 120 && BG2Complete == false && !BGPanel.activeSelf)
+        {
+            Time.timeScale = 0;
+            BGPanel.SetActive(true);
+            BG2Complete = true;
+        }
+        if (battleTimer <= 90 && op6Complete == false && !obstacleSelectionPanel.activeSelf)
+        {
+            Time.timeScale = 0;
+            obstacleSelectionPanel.SetActive(true);
+        }
+        if (battleTimer <= 60 && ADS2Complete == false && !ADSPanel.activeSelf)
+        {
+            Time.timeScale = 0;
+            ADSPanel.SetActive(true);
+            ADS2Complete = true;
+        }
+        if (battleTimer <=0)
+        {
+            EndGame();
+        }
+
         IntroReadyCheck();
         BotSelectionCheck();
+        ObstacleSelectionCheck();
+        PowerupSelectionCheck();
         ADSDisplay();
+        BGDisplay();
         ADSReadyCheck();
         StartCoroutine(ADSDoneCheck());
         BGReadyCheck();
         StartCoroutine(BGDoneCheck());
+        StatZeroBalance();
+        
     }
 
+    public void StatZeroBalance()
+    {
+        if(p1AttackStat <=0)
+        {
+            p1AttackStat=0;
+        }
+        if(p2AttackStat <=0)
+        {
+            p2AttackStat=0;
+        }
+        if(p1StaminaStat <=0)
+        { 
+            p1StaminaStat=0;
+        }
+        if(p2StaminaStat<=0)
+        {
+            p2StaminaStat=0;
+        }
+        if(p1DefenseStat <=0)
+        {
+            p1DefenseStat=0;
+        }
+        if(p2DefenseStat <=0)
+        {
+            p2DefenseStat=0;
+        }
+    }
     public void IntroReadyCheck()
     {
         if (p1Ready && p2Ready &&introPanel.activeSelf)
@@ -164,6 +296,284 @@ public class GameManager : MonoBehaviour
             p2Ready = false;
         }
     }
+    public void ObstacleSelectionCheck()
+    {
+        if (p1CubeSelected && !p1CubeRemovedFromArray)
+        {
+            
+            int rnd = Random.Range(0, cube.Count);
+            Debug.Log(rnd);
+            Debug.Log(cube.Count);
+            
+
+            if (!cube[rnd].activeSelf)
+            {
+                p1SelectedObstacle = cube[rnd];
+                p1CubeRemovedFromArray = true;
+            }
+            p1ObstacleTxt.text = "Player Obstacle: Cube";
+
+        }
+       
+        if (p2CubeSelected && !p2CubeRemovedFromArray)
+        {
+
+            int rnd = Random.Range(0, cube.Count );
+            
+
+
+            if (!cube[rnd].activeSelf)
+            {
+                p2SelectedObstacle = cube[rnd];
+                p2CubeRemovedFromArray = true;
+            }
+
+            p2ObstacleTxt.text = "Player Obstacle: Cube";
+        }
+       
+        if (p1CylinderSelected && !p1CylinderRemovedFromArray)
+        {
+            int rnd = Random.Range(0, cylinder.Count);
+            
+
+            if (!cylinder[rnd].activeSelf )
+            {
+                p1SelectedObstacle = cylinder[rnd];
+                p1CylinderRemovedFromArray = true;
+            }
+
+            p1ObstacleTxt.text = "Player Obstacle: Cylinder";
+        }
+       
+        if (p2CylinderSelected && !p2CylinderRemovedFromArray)
+        {
+
+            int rnd = Random.Range(0, cylinder.Count);
+           
+
+
+            if (!cylinder[rnd].activeSelf)
+            {
+                p2SelectedObstacle = cylinder[rnd];
+                p2CylinderRemovedFromArray = true;
+            }
+
+            p2ObstacleTxt.text = "Player Obstacle: Cylinder";
+        }
+       
+        if (p1SphereSelected && !p1SphereRemovedFromArray)
+        {
+
+            int rnd = Random.Range(0, sphere.Count);
+            
+
+
+            if (!sphere[rnd].activeSelf)
+            {
+                p1SelectedObstacle = sphere[rnd];
+                p1SphereRemovedFromArray = true;
+            }
+
+            p1ObstacleTxt.text = "Player Obstacle: Sphere";
+        }
+        
+        if (p2SphereSelected && !p2SphereRemovedFromArray)
+        {
+
+            int rnd = Random.Range(0, sphere.Count);
+            
+
+            if (!sphere[rnd].activeSelf)
+            {
+                p2SelectedObstacle = sphere[rnd];
+                p2SphereRemovedFromArray = true;
+            }
+
+            p2ObstacleTxt.text = "Player Obstacle: Sphere";
+        }
+       
+        if (p1Ready && p2Ready && obstacleSelectionPanel.activeSelf)
+        {
+
+            obsP1Ready.SetActive(false);
+            obsP2Ready.SetActive(false);
+            
+            if (!op1Complete)
+            {
+                op1Complete = true;
+            }
+            else if (op1Complete && op2Complete ==false)
+            {
+                op2Complete = true;
+            }
+            else if (op2Complete && op3Complete == false)
+            {
+                op3Complete = true;
+            }
+            else if (op3Complete && op4Complete == false)
+            {
+                op4Complete = true;
+            }
+            else if (op4Complete && op5Complete == false)
+            {
+                op5Complete = true;
+            }
+            else if (op5Complete && op6Complete == false)
+            {
+                op6Complete = true;
+            }
+            obstacleSelectionPanel.SetActive(false);
+            p1CubeSelected = false;
+            p2CubeSelected = false;
+            p1CylinderSelected = false;
+            p2CylinderSelected = false;
+            p1SphereSelected = false;
+            p2SphereSelected = false;
+            p1CubeRemovedFromArray = false;
+            p2CubeRemovedFromArray = false;
+            p1CylinderRemovedFromArray = false;
+            p2CylinderRemovedFromArray = false;
+            p1SphereRemovedFromArray = false;
+            p2SphereRemovedFromArray = false;
+            p1ObstacleTxt.text = null; 
+            p2ObstacleTxt.text=null;
+            
+            p1Ready = false;
+            p2Ready = false;
+            powerupSelectionPanel.SetActive(true);
+            
+        }
+        
+
+    }
+    public void PowerupSelectionCheck()
+    {
+        if (p1ChargeSelected && !p1ChargeRemovedFromArray)
+        {
+            int rnd = Random.Range(0, charge.Count);
+            
+
+            if (!charge[rnd].activeSelf)
+            {
+                p1SelectedPowerup = charge[rnd];
+                p1ChargeRemovedFromArray = true;
+            }
+
+
+            p1PowerupTxt.text = "Player Powerup: Charge";
+        }
+       
+        if (p2ChargeSelected && !p2ChargeRemovedFromArray)
+        {
+
+            int rnd = Random.Range(0, charge.Count);
+            
+
+            if (!charge[rnd].activeSelf)
+            {
+                p2SelectedPowerup = charge[rnd];
+                p2ChargeRemovedFromArray = true;
+            }
+            p2PowerupTxt.text = "Player Powerup: Charge";
+        }
+       
+        if (p1ShieldSelected && !p1ShieldRemovedFromArray)
+        {
+
+            int rnd = Random.Range(0, shield.Count);
+            
+
+            if (!shield[rnd].activeSelf)
+            {
+                p1SelectedPowerup = shield[rnd];
+                p1ShieldRemovedFromArray = true;
+            }
+            p1PowerupTxt.text = "Player Powerup: Shield";
+        }
+        
+        if (p2ShieldSelected && !p2ShieldRemovedFromArray)
+        {
+
+            int rnd = Random.Range(0, shield.Count);
+            
+
+            if (!shield[rnd].activeSelf)
+            {
+                p2SelectedPowerup = shield[rnd];
+                p2ShieldRemovedFromArray = true;
+            }
+
+            p2PowerupTxt.text = "Player Powerup: Shield";
+        }
+        
+        if (p1SpeedBoostSelected && !p1SpeedBoostRemovedFromArray)
+        {
+
+            int rnd = Random.Range(0, speedBoost.Count);
+            
+
+            if (!speedBoost[rnd].activeSelf)
+            {
+                p1SelectedPowerup = speedBoost[rnd];
+                p1SpeedBoostRemovedFromArray = true;
+            }
+            p1PowerupTxt.text = "Player Powerup: SpeedBoost";
+        }
+        
+        if (p2SpeedBoostSelected && !p2SpeedBoostRemovedFromArray)
+        {
+
+            int rnd = Random.Range(0, speedBoost.Count);
+            
+                
+            if (!speedBoost[rnd].activeSelf)
+            {
+                p2SelectedPowerup = speedBoost[rnd];
+                p2SpeedBoostRemovedFromArray = true;
+            }
+
+            p2PowerupTxt.text = "Player Powerup: SpeedBoost";
+        }
+       
+        if (p1Ready && p2Ready && powerupSelectionPanel.activeSelf)
+        {
+            powP1Ready.SetActive(false);
+            powP2Ready.SetActive(false);
+            powerupSelectionPanel.SetActive(false);
+            p1SelectedPowerup.SetActive(true);
+            p2SelectedPowerup.SetActive(true);
+            p1SelectedObstacle.SetActive(true);
+            p2SelectedObstacle.SetActive(true);
+            p1ObstacleSelected = false;
+            p2ObstacleSelected = false;
+            p1PowerupSelected = false;
+            p2PowerupSelected = false;
+            p1SelectedObstacle = null;
+            p2SelectedObstacle = null;
+            p1SelectedPowerup = null;
+            p2SelectedPowerup = null;
+            p1ChargeSelected = false;
+            p2ChargeSelected = false;
+            p1ShieldSelected = false;
+            p2ShieldSelected = false;
+            p1ChargeRemovedFromArray = false;
+            p2ChargeRemovedFromArray = false;
+            p1ShieldRemovedFromArray = false;
+            p2ShieldRemovedFromArray = false;
+            p1SpeedBoostRemovedFromArray=false;
+            p2SpeedBoostRemovedFromArray=false;
+            p1SpeedBoostSelected = false;
+            p2SpeedBoostSelected = false;
+            p1PowerupTxt.text = null;
+            p2PowerupTxt.text = null;
+            
+            Time.timeScale = 1.0f;
+            p1Ready = false;
+            p2Ready = false;
+            
+        }
+    }
+       
     public void ADSReadyCheck()
     {
         if(p1Ready)
@@ -209,18 +619,17 @@ public class GameManager : MonoBehaviour
         if (p1Ready && p2Ready && ADSPanel.activeSelf && roundCount == 4)
         {
             yield return new WaitForSecondsRealtime(3f); 
-
             ADSPanel.SetActive(false);
-            ADS1Complete = true;
+
             Time.timeScale = 1f; 
             p1Ready = false;
             p2Ready = false;
             winner = "";
             winningType = "";
-            roundCount = 0;
+            roundCount = 1;
             player1Score = 0;
             player2Score = 0;
-            
+            ADSWinner.text = "";
 
         }
     }
@@ -231,13 +640,13 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSecondsRealtime(3f);
 
             BGPanel.SetActive(false);
-            BG1Complete = true;
             Time.timeScale = 1f;
             p1Ready = false;
             p2Ready = false;
-            bgRoundCount = 0;
+            bgRoundCount = 1;
             bgP1BuffList = null;
             bgP2BuffList = null;
+            BGOutcomeTxt.text = "";
 
 
         }
@@ -271,11 +680,11 @@ public class GameManager : MonoBehaviour
     }
     public void BGDisplay()
     {
-        if (roundCount > 0)
+        if (bgRoundCount > 0)
         {
-            BGRoundTxt.text = "Round: " + roundCount;
+            BGRoundTxt.text = "Round: " + bgRoundCount;
         }
-        if (roundCount == 4)
+        if (bgRoundCount == 4)
         {
             BGOutcomeTxt.text = "Player 1 got these buffs: " + bgP1BuffList + "\nPlayer 2 got these buffs:" + bgP2BuffList;
         }
@@ -358,23 +767,45 @@ public class GameManager : MonoBehaviour
     }
     void SpawnPlayers()
     {
-        // Generate a random position within the defined area
-        float x1 = Random.Range(areaCenter.x - areaSize.x / 2, areaCenter.x + areaSize.x / 2);
-        float z1 = Random.Range(areaCenter.z - areaSize.z / 2, areaCenter.z + areaSize.z / 2);
-        float y1 = areaCenter.y+1;  // Assuming flat terrain; adjust if terrain is uneven
-        float x2 = Random.Range(areaCenter.x - areaSize.x / 2, areaCenter.x + areaSize.x / 2);
-        float z2 = Random.Range(areaCenter.z - areaSize.z / 2, areaCenter.z + areaSize.z / 2);
-        float y2 = areaCenter.y + 1;  // Assuming flat terrain; adjust if terrain is uneven
-
-        // Create the player instance at the generated position
-        Vector3 spawnPosition1 = new Vector3(x1, y1, z1);
+        float angle1 = Random.Range(0, Mathf.PI * 2); // Random angle
+        float x1 = Mathf.Cos(angle1) * spawnRadius;
+        float z1 = Mathf.Sin(angle1) * spawnRadius;
+        Vector3 spawnPosition1 = spawnCenter.position + new Vector3(x1, 0.5f, z1);
         P1.transform.position = spawnPosition1;
 
-        Vector3 spawnPosition2 = new Vector3(x2, y2, z2);
+        float angle2 = Random.Range(0, Mathf.PI * 2); // Random angle
+        float x2 = Mathf.Cos(angle2) * spawnRadius;
+        float z2 = Mathf.Sin(angle2) * spawnRadius;
+        Vector3 spawnPosition2 = spawnCenter.position + new Vector3(x2, 0.5f, z2);
         P2.transform.position = spawnPosition2;
     }
     public void EndGame()
     {
+        Time.timeScale = 0;
+        if(battleTimer<=0)
+        {
+            p1StatsSum = System.MathF.Round(p1AttackStat + p1StaminaStat + p1DefenseStat, 2);
+            p2StatsSum = System.MathF.Round(p2AttackStat + p2StaminaStat + p2DefenseStat, 2);
+            if (p1StatsSum > p2StatsSum)
+            {
+                finalWinnerResultTxt.text = "Player 1 Remaining Stat Total: " + p1StatsSum + "\nPlayer 2 Remaining StatTotal: " + p2StatsSum + "\nPlayer 1 Wins";
+            }
+            else if (p1StatsSum < p2StatsSum)
+            {
+                finalWinnerResultTxt.text = "Player 1 Remaining Stat Total: " + p1StatsSum + "\nPlayer 2 Remaining StatTotal: " + p2StatsSum + "\nPlayer 2 Wins";
+            }
+            else
+            {
+                finalWinnerResultTxt.text = "Player 1 Remaining Stat Total: " + p1StatsSum + "\nPlayer 2 Remaining StatTotal: " + p2StatsSum + "\nIts a draw";
+            }
+        }
+        
+        StartCoroutine(BackToMainMenu());
+    }
 
+    public IEnumerator BackToMainMenu()
+    {
+        yield return new WaitForSecondsRealtime(5);
+        SceneManager.LoadScene("MainMenu");
     }
 }
