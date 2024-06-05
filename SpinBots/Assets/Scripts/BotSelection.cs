@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class BotSelection : MonoBehaviour
 {
@@ -30,35 +31,47 @@ public class BotSelection : MonoBehaviour
             gameManager.p1StaminaType = true;
             gameManager.p1BotSelected = true;
         }
-        if (Input.GetKeyDown(KeyCode.J) && gameManager.p2AttackType == false)
-        {
-            gameManager.p2AttackType = true;
-            gameManager.p2DefenseType = false;
-            gameManager.p2StaminaType = false;
-            gameManager.p2BotSelected = true;
-        }
-        if (Input.GetKeyDown(KeyCode.K) && gameManager.p2DefenseType == false)
-        {
-            gameManager.p2AttackType = false;
-            gameManager.p2DefenseType = true;
-            gameManager.p2StaminaType = false;
-            gameManager.p2BotSelected = true;
-        }
-        if (Input.GetKeyDown(KeyCode.L) && gameManager.p2StaminaType == false)
-        {
-            gameManager.p2AttackType = false;
-            gameManager.p2DefenseType = false;
-            gameManager.p2StaminaType = true;
-            gameManager.p2BotSelected = true;
-        }
-
-        if (Input.GetKeyDown(KeyCode.E) && gameManager.p1BotSelected )
+        if (Input.GetKeyDown(KeyCode.E) && gameManager.p1BotSelected)
         {
             gameManager.p1Ready = true;
         }
-        if (Input.GetKeyDown(KeyCode.O) && gameManager.p2BotSelected)
+
+        if (SceneManager.GetActiveScene().name == "PVP") 
         {
-            gameManager.p2Ready = true;
+            if (Input.GetKeyDown(KeyCode.J) && gameManager.p2AttackType == false)
+            {
+                gameManager.p2AttackType = true;
+                gameManager.p2DefenseType = false;
+                gameManager.p2StaminaType = false;
+                gameManager.p2BotSelected = true;
+            }
+            if (Input.GetKeyDown(KeyCode.K) && gameManager.p2DefenseType == false)
+            {
+                gameManager.p2AttackType = false;
+                gameManager.p2DefenseType = true;
+                gameManager.p2StaminaType = false;
+                gameManager.p2BotSelected = true;
+            }
+            if (Input.GetKeyDown(KeyCode.L) && gameManager.p2StaminaType == false)
+            {
+                gameManager.p2AttackType = false;
+                gameManager.p2DefenseType = false;
+                gameManager.p2StaminaType = true;
+                gameManager.p2BotSelected = true;
+            }
+            if (Input.GetKeyDown(KeyCode.O) && gameManager.p2BotSelected)
+            {
+                gameManager.p2Ready = true;
+            }
         }
+        else if (SceneManager.GetActiveScene().name == "PvAI")
+        {
+
+        }
+
+
+
+
+
     }
 }

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Intro : MonoBehaviour
 {
@@ -18,7 +19,7 @@ public class Intro : MonoBehaviour
         {
             gameManager.p1Ready = true;
         }
-        if (Input.GetKeyDown(KeyCode.O))
+        if (Input.GetKeyDown(KeyCode.O) && SceneManager.GetActiveScene().name=="PVP")
         {
             gameManager.p2Ready = true;
         }

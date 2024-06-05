@@ -12,7 +12,7 @@ public class GameManager : MonoBehaviour
 
     public TextMeshProUGUI p1ChoiceTxt, p2ChoiceTxt, ADSP1ScoreTxt, ADSP2ScoreTxt, ADSRoundTxt, ADSWinner, BGRoundTxt, BGOutcomeTxt, p1ObstacleTxt, p2ObstacleTxt, p1PowerupTxt, p2PowerupTxt, finalWinnerResultTxt;
     public float battleTimer ,p1StatsSum, p2StatsSum;
-    public bool ADS1Complete, ADS2Complete, BG1Complete, BG2Complete, op1Complete, op2Complete, op3Complete, op4Complete, op5Complete, op6Complete, p1CubeRemovedFromArray, p2CubeRemovedFromArray, p1CylinderRemovedFromArray, p2CylinderRemovedFromArray, p1SphereRemovedFromArray, p2SphereRemovedFromArray, p1ChargeRemovedFromArray, p2ChargeRemovedFromArray, p1ShieldRemovedFromArray, p2ShieldRemovedFromArray, p1SpeedBoostRemovedFromArray, p2SpeedBoostRemovedFromArray;
+    public bool ADS1Complete, ADS2Complete, BG1Complete, BG2Complete, op1Complete, op2Complete, op3Complete, op4Complete, op5Complete, op6Complete, p1CubeRemovedFromArray, p2CubeRemovedFromArray, p1CylinderRemovedFromArray, p2CylinderRemovedFromArray, p1SphereRemovedFromArray, p2SphereRemovedFromArray, p1ChargeRemovedFromArray, p2ChargeRemovedFromArray, p1ShieldRemovedFromArray, p2ShieldRemovedFromArray, p1SpeedBoostRemovedFromArray, p2SpeedBoostRemovedFromArray,gameOver;
     //ADS
     public int roundCount, player1Score, player2Score;
     public string winner, winningType, player1Choice, player2Choice;
@@ -62,6 +62,11 @@ public class GameManager : MonoBehaviour
     public List<GameObject> cube = new List<GameObject>(12);
     public List<GameObject> cylinder = new List<GameObject>(12);
     public List<GameObject> sphere = new List<GameObject>(12);
+
+    //AI
+    private MinimaxAI ai;
+    GameState currentState;
+    Move bestMove;
     // Start is called before the first frame update
     void Start()
     {
@@ -117,7 +122,8 @@ public class GameManager : MonoBehaviour
         bgP2BuffList = null;
         ADS1Complete = false;
         BG1Complete = false;
-        Debug.Log(cube.Count);
+        gameOver= false;
+        
 
         foreach (GameObject obj in cube)
         {
@@ -134,6 +140,8 @@ public class GameManager : MonoBehaviour
             if (obj != null)
                 obj.SetActive(false);
         }
+
+        ai = new MinimaxAI();
     }
 
 
@@ -250,13 +258,27 @@ public class GameManager : MonoBehaviour
     }
     public void IntroReadyCheck()
     {
-        if (p1Ready && p2Ready &&introPanel.activeSelf)
+        if(SceneManager.GetActiveScene().name == "PVP")
         {
-            introPanel.SetActive(false);
-            botSelectionPanel.SetActive(true);
-            p1Ready = false;
-            p2Ready = false;
+            if (p1Ready && p2Ready && introPanel.activeSelf)
+            {
+                
+                introPanel.SetActive(false);
+                botSelectionPanel.SetActive(true);
+                p1Ready = false;
+                p2Ready = false;
+            }
         }
+        else if (SceneManager.GetActiveScene().name == "PvAI")
+        {
+            if (p1Ready && introPanel.activeSelf)
+            {
+                introPanel.SetActive(false);
+                botSelectionPanel.SetActive(true);
+                p1Ready = false;
+            }
+        }
+
     }
     public void BotSelectionCheck()
     {
@@ -781,6 +803,7 @@ public class GameManager : MonoBehaviour
     }
     public void EndGame()
     {
+        gameOver = true;
         Time.timeScale = 0;
         if(battleTimer<=0)
         {
@@ -807,5 +830,47 @@ public class GameManager : MonoBehaviour
     {
         yield return new WaitForSecondsRealtime(5);
         SceneManager.LoadScene("MainMenu");
+    }
+
+    private GameState GetCurrentGameState()
+    {
+        // Get the current game state
+        GameState state = new GameState
+        {
+            p1AttackStatAI = p1AttackStat,
+            p1DefenseStatAI = p1DefenseStat,
+            p1StaminaStatAI = p1StaminaStat,
+            p2AttackStatAI = p2AttackStat,
+            p2DefenseStatAI = p2DefenseStat,
+            p2StaminaStatAI = p2StaminaStat,
+            p1BotSelectedAI = p1BotSelected,
+            p2BotSelectedAI = p2BotSelected,
+            p1ChoiceAI = player1Choice,
+            p2ChoiceAI = player2Choice,
+            gameOverAI = gameOver
+        };
+
+
+        return state;
+    }
+
+    private void ApplyMove(Move move)
+    {
+        // Apply the move to the game state
+        switch (move.Type)
+        {
+            case "BeybladeSelection":
+                // Apply beyblade selection...
+                break;
+            case "ADS":
+                break;
+            case "Buff Game":
+                break;
+
+
+                // Handle other types of moves: obstacle selection, powerup selection, ADS, Buff, etc.
+        }
+
+        // Update the game state based on the move...
     }
 }
