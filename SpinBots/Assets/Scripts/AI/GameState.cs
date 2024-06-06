@@ -22,9 +22,16 @@ public class GameState
 
         public bool gameOverAI;
 
+        public bool p1ReadyAI;
+        public bool p2ReadyAI;
+        public int roundCountAI;
+        public int bgRoundCountAI;
+        public int player1ScoreAI;
+        public int player2ScoreAI;
 
 
-        public GameState Clone()
+
+    public GameState Clone()
         {
             return (GameState)this.MemberwiseClone();
         }

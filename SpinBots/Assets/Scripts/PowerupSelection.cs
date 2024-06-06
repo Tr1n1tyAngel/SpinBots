@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PowerupSelection : MonoBehaviour
 {
@@ -28,37 +29,71 @@ public class PowerupSelection : MonoBehaviour
             gameManager.p1SpeedBoostSelected = true;
             gameManager.p1PowerupSelected = true;
         }
-        if (Input.GetKeyDown(KeyCode.J) && gameManager.p2ChargeSelected == false)
-        {
-            gameManager.p2ChargeSelected = true;
-            gameManager.p2ShieldSelected = false;
-            gameManager.p2SpeedBoostSelected = false;
-            gameManager.p2PowerupSelected = true;
-        }
-        if (Input.GetKeyDown(KeyCode.K) && gameManager.p2ShieldSelected == false)
-        {
-            gameManager.p2ChargeSelected = false;
-            gameManager.p2ShieldSelected = true;
-            gameManager.p2SpeedBoostSelected = false;
-            gameManager.p2PowerupSelected = true;
-        }
-        if (Input.GetKeyDown(KeyCode.L) && gameManager.p2SpeedBoostSelected == false)
-        {
-            gameManager.p2ChargeSelected = false;
-            gameManager.p2ShieldSelected = false;
-            gameManager.p2SpeedBoostSelected = true;
-            gameManager.p2PowerupSelected = true;
-        }
-
         if (Input.GetKeyDown(KeyCode.E) && gameManager.p1PowerupSelected)
         {
             gameManager.p1Ready = true;
             gameManager.powP1Ready.SetActive(true);
         }
-        if (Input.GetKeyDown(KeyCode.O) && gameManager.p2PowerupSelected)
+        if (SceneManager.GetActiveScene().name == "PVP")
         {
+            if (Input.GetKeyDown(KeyCode.J) && gameManager.p2ChargeSelected == false)
+            {
+                gameManager.p2ChargeSelected = true;
+                gameManager.p2ShieldSelected = false;
+                gameManager.p2SpeedBoostSelected = false;
+                gameManager.p2PowerupSelected = true;
+            }
+            if (Input.GetKeyDown(KeyCode.K) && gameManager.p2ShieldSelected == false)
+            {
+                gameManager.p2ChargeSelected = false;
+                gameManager.p2ShieldSelected = true;
+                gameManager.p2SpeedBoostSelected = false;
+                gameManager.p2PowerupSelected = true;
+            }
+            if (Input.GetKeyDown(KeyCode.L) && gameManager.p2SpeedBoostSelected == false)
+            {
+                gameManager.p2ChargeSelected = false;
+                gameManager.p2ShieldSelected = false;
+                gameManager.p2SpeedBoostSelected = true;
+                gameManager.p2PowerupSelected = true;
+            }
+            if (Input.GetKeyDown(KeyCode.O) && gameManager.p2PowerupSelected)
+            {
+                gameManager.p2Ready = true;
+                gameManager.powP2Ready.SetActive(true);
+            }
+        }
+        else
+        {
+            int rnd = Random.Range(0, 3);
+            switch (rnd)
+            {
+                case 0:
+                    gameManager.p2ChargeSelected = true;
+                    gameManager.p2ShieldSelected = false;
+                    gameManager.p2SpeedBoostSelected = false;
+                    gameManager.p2PowerupSelected = true;
+                    break;
+                case 1:
+                    gameManager.p2ChargeSelected = false;
+                    gameManager.p2ShieldSelected = true;
+                    gameManager.p2SpeedBoostSelected = false;
+                    gameManager.p2PowerupSelected = true;
+                    break;
+                case 2:
+                    gameManager.p2ChargeSelected = false;
+                    gameManager.p2ShieldSelected = false;
+                    gameManager.p2SpeedBoostSelected = true;
+                    gameManager.p2PowerupSelected = true;
+                    break;
+            }
             gameManager.p2Ready = true;
             gameManager.powP2Ready.SetActive(true);
+
         }
+        
+
+       
+        
     }
 }

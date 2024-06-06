@@ -63,8 +63,7 @@ public class MinimaxAI
 
     private int Evaluate(GameState state)
     {
-        // Evaluate the game state from AI perspective
-        // Higher value means better for AI
+        
         return (int)(state.p2AttackStatAI + state.p2DefenseStatAI + state.p2StaminaStatAI -
                      state.p1AttackStatAI - state.p1DefenseStatAI - state.p1StaminaStatAI);
     }
@@ -75,22 +74,33 @@ public class MinimaxAI
 
         if (!state.p2BotSelectedAI)
         {
-            moves.Add(new Move("BeybladeSelection", "Attack"));
-            moves.Add(new Move("BeybladeSelection", "Defense"));
-            moves.Add(new Move("BeybladeSelection", "Stamina"));
+            moves.Add(new Move("SpinBotSelection", "Attack"));
+            moves.Add(new Move("SpinBotSelection", "Defense"));
+            moves.Add(new Move("SpinBotSelection", "Stamina"));
         }
 
-        // Add other possible moves based on the current state of the game
-        // e.g., obstacle selection, powerup selection, ADS, Buff, etc.
+        if (state.roundCountAI < 4)
+        {
+            moves.Add(new Move("ADS", "Attack"));
+            moves.Add(new Move("ADS", "Defense"));
+            moves.Add(new Move("ADS", "Stamina"));
+        }
+        if (state.bgRoundCountAI < 4)
+        {
+            moves.Add(new Move("Buff", "Attack"));
+            moves.Add(new Move("Buff", "Defense"));
+            moves.Add(new Move("Buff", "Stamina"));
+        }
 
         return moves;
     }
+
 
     private GameState ApplyMove(GameState state, Move move)
     {
         switch (move.Type)
         {
-            case "BeybladeSelection":
+            case "SpinBotSelection":
                 if (move.Choice == "Attack")
                 {
                     state.p2AttackStatAI = 8;
@@ -112,7 +122,39 @@ public class MinimaxAI
                 state.p2BotSelectedAI = true;
                 break;
 
-                // Handle other types of moves: obstacle selection, powerup selection, ADS, Buff, etc.
+            case "ADS":
+                state.p2ChoiceAI = move.Choice;
+
+                if (state.p2ChoiceAI == state.p1ChoiceAI)
+                {
+                    // It's a draw, no score change
+                }
+                else if ((state.p2ChoiceAI == "Attack" && state.p1ChoiceAI == "Stamina") ||
+                         (state.p2ChoiceAI == "Stamina" && state.p1ChoiceAI == "Defense") ||
+                         (state.p2ChoiceAI == "Defense" && state.p1ChoiceAI == "Attack"))
+                {
+                    state.player2ScoreAI++;
+                }
+                else
+                {
+                    state.player1ScoreAI++;
+                }
+
+                state.roundCountAI++;
+                break;
+            case "Buff":
+                state.p2ChoiceAI = move.Choice;
+
+                if (state.p2ChoiceAI != state.p1ChoiceAI)
+                {
+                    // Both players get their selected buffs
+                    state.p2AttackStatAI += (move.Choice == "Attack") ? 1 : 0;
+                    state.p2DefenseStatAI += (move.Choice == "Defense") ? 1 : 0;
+                    state.p2StaminaStatAI += (move.Choice == "Stamina") ? 1 : 0;
+                }
+
+                state.bgRoundCountAI++;
+                break;
         }
 
         return state;

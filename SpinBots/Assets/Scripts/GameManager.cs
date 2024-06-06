@@ -142,6 +142,9 @@ public class GameManager : MonoBehaviour
         }
 
         ai = new MinimaxAI();
+        currentState = GetCurrentGameState();
+        
+        
     }
 
 
@@ -163,6 +166,9 @@ public class GameManager : MonoBehaviour
         }
         if (battleTimer <= 300 && ADS1Complete == false && !ADSPanel.activeSelf)
         {
+            bestMove = ai.GetBestMove(currentState);
+            bestMove.Type = "ADS";
+            ApplyMove(bestMove);
             Time.timeScale = 0;
             ADSPanel.SetActive(true);
             ADS1Complete = true;
@@ -174,6 +180,9 @@ public class GameManager : MonoBehaviour
         }
         if (battleTimer <= 240 && BG1Complete == false && !BGPanel.activeSelf)
         {
+            bestMove = ai.GetBestMove(currentState);
+            bestMove.Type = "Buff";
+            ApplyMove(bestMove);
             Time.timeScale = 0;
             BGPanel.SetActive(true);
             BG1Complete = true;
@@ -195,6 +204,9 @@ public class GameManager : MonoBehaviour
         }
         if (battleTimer <= 120 && BG2Complete == false && !BGPanel.activeSelf)
         {
+            bestMove = ai.GetBestMove(currentState);
+            bestMove.Type = "Buff";
+            ApplyMove(bestMove);
             Time.timeScale = 0;
             BGPanel.SetActive(true);
             BG2Complete = true;
@@ -206,6 +218,9 @@ public class GameManager : MonoBehaviour
         }
         if (battleTimer <= 60 && ADS2Complete == false && !ADSPanel.activeSelf)
         {
+            bestMove = ai.GetBestMove(currentState);
+            bestMove.Type = "ADS";
+            ApplyMove(bestMove);
             Time.timeScale = 0;
             ADSPanel.SetActive(true);
             ADS2Complete = true;
@@ -226,6 +241,9 @@ public class GameManager : MonoBehaviour
         BGReadyCheck();
         StartCoroutine(BGDoneCheck());
         StatZeroBalance();
+        currentState = GetCurrentGameState();
+        
+            
         
     }
 
@@ -258,8 +276,7 @@ public class GameManager : MonoBehaviour
     }
     public void IntroReadyCheck()
     {
-        if(SceneManager.GetActiveScene().name == "PVP")
-        {
+        
             if (p1Ready && p2Ready && introPanel.activeSelf)
             {
                 
@@ -268,16 +285,7 @@ public class GameManager : MonoBehaviour
                 p1Ready = false;
                 p2Ready = false;
             }
-        }
-        else if (SceneManager.GetActiveScene().name == "PvAI")
-        {
-            if (p1Ready && introPanel.activeSelf)
-            {
-                introPanel.SetActive(false);
-                botSelectionPanel.SetActive(true);
-                p1Ready = false;
-            }
-        }
+        
 
     }
     public void BotSelectionCheck()
@@ -305,6 +313,12 @@ public class GameManager : MonoBehaviour
         if (p2StaminaType)
         {
             p2ChoiceTxt.text = "Player Choice: Stamina";
+        }
+        if(p1Ready && SceneManager.GetActiveScene().name != "PVP") 
+        {
+            bestMove = ai.GetBestMove(currentState);
+            bestMove.Type = "SpinBotSelection";
+            ApplyMove(bestMove);
         }
         if(p1Ready&&p2Ready&&botSelectionPanel.activeSelf)
         {
@@ -850,27 +864,50 @@ public class GameManager : MonoBehaviour
             gameOverAI = gameOver
         };
 
-
         return state;
     }
 
     private void ApplyMove(Move move)
     {
-        // Apply the move to the game state
         switch (move.Type)
         {
-            case "BeybladeSelection":
-                // Apply beyblade selection...
+            case "SpinBotSelection":
+                if (move.Choice == "Attack")
+                {
+                    p2AttackType = true;
+                    p2DefenseType = false;
+                    p2StaminaType = false;
+                    p2BotSelected = true;
+                }
+                else if (move.Choice == "Defense")
+                {
+                    p2AttackType = false;
+                    p2DefenseType = true;
+                    p2StaminaType = false;
+                    p2BotSelected = true;
+                }
+                else if (move.Choice == "Stamina")
+                {
+                    p2AttackType = false;
+                    p2DefenseType = false;
+                    p2StaminaType = true;
+                    p2BotSelected = true;
+                }
+                p2Ready = true;
                 break;
+
             case "ADS":
-                break;
-            case "Buff Game":
+                p2ChoiceTxt.text = "Player 2 chooses " + move.Choice;
+                player2Choice = move.Choice;
+                p2Ready = true;
                 break;
 
-
-                // Handle other types of moves: obstacle selection, powerup selection, ADS, Buff, etc.
+            case "Buff":
+                p2ChoiceTxt.text = "Player 2 chooses " + move.Choice;
+                player2Choice = move.Choice;
+                p2Ready = true;
+                break;
         }
-
-        // Update the game state based on the move...
+       
     }
 }

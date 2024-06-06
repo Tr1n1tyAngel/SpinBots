@@ -1,20 +1,51 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class BuffGame : MonoBehaviour
 {
     public GameManager gameManager; // Reference to the GameManager, assign in Unity Editor
+    private MinimaxAI ai;
+    private GameState gameState;
 
     private void Start()
     {
+        ai = new MinimaxAI();
+        gameState = new GameState
+        {
+            p1AttackStatAI = gameManager.p1AttackStat,
+            p1DefenseStatAI = gameManager.p1DefenseStat,
+            p1StaminaStatAI = gameManager.p1StaminaStat,
+            p2AttackStatAI = gameManager.p2AttackStat,
+            p2DefenseStatAI = gameManager.p2DefenseStat,
+            p2StaminaStatAI = gameManager.p2StaminaStat,
+            p1BotSelectedAI = gameManager.p1BotSelected,
+            p2BotSelectedAI = gameManager.p2BotSelected,
+            p1ChoiceAI = gameManager.player1Choice,
+            p2ChoiceAI = gameManager.player2Choice,
+            p1ReadyAI = gameManager.p1Ready,
+            p2ReadyAI = gameManager.p2Ready,
+            roundCountAI = gameManager.roundCount,
+            bgRoundCountAI = gameManager.bgRoundCount,
+            player1ScoreAI = gameManager.player1Score,
+            player2ScoreAI = gameManager.player2Score,
+            gameOverAI = false
+        };
         RandomizeChoices();
     }
 
     private void Update()
     {
         Player1Input();
-        Player2Input();
+        if (SceneManager.GetActiveScene().name == "PVP")
+        {
+            Player2Input();
+        }
+        else 
+        {
+            AIAutomaticInput();
+        }
     }
 
     private void Player1Input()
@@ -26,6 +57,7 @@ public class BuffGame : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.E))
         {
             gameManager.p1Ready = true;
+            gameState.p1ReadyAI = true;
             Debug.Log("Player 1 chooses " + gameManager.player1Choice);
             CheckPlayersReady();
         }
@@ -40,6 +72,7 @@ public class BuffGame : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.O))
         {
             gameManager.p2Ready = true;
+            gameState.p2ReadyAI = true;
             Debug.Log("Player 2 chooses " + gameManager.player2Choice);
             CheckPlayersReady();
         }
@@ -84,7 +117,12 @@ public class BuffGame : MonoBehaviour
     private void RandomizeChoices()
     {
         gameManager.player1Choice = RandomChoice();
-        gameManager.player2Choice = RandomChoice();
+        gameState.p1ChoiceAI = gameManager.player1Choice;
+        if (SceneManager.GetActiveScene().name == "PVP")
+        {
+            gameManager.player2Choice = RandomChoice();
+            gameState.p2ChoiceAI = gameManager.player2Choice;
+        }
         Debug.Log("New round starts now!");
     }
 
@@ -97,6 +135,18 @@ public class BuffGame : MonoBehaviour
             case 1: return "Defense";
             case 2: return "Stamina";
             default: return "Attack"; 
+        }
+    }
+    private void AIAutomaticInput()
+    {
+        if (!gameManager.p2Ready)
+        {
+            Move bestMove = ai.GetBestMove(gameState);
+            gameManager.player2Choice = bestMove.Choice;
+            gameManager.p2Ready = true;
+            gameState.p2ReadyAI = true;
+            Debug.Log("AI chooses " + gameManager.player2Choice);
+            CheckPlayersReady();
         }
     }
 }

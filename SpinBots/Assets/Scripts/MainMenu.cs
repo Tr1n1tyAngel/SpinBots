@@ -28,10 +28,18 @@ public class MainMenu : MonoBehaviour
     public void PvP()
     {
         SceneManager.LoadScene("PVP");
+        if (SceneManager.GetActiveScene().name == "PVP")
+        {
+            Debug.Log("PVP scene is active");
+        }
     }
     public void PvAI()
     {
-        SceneManager.LoadScene("PVAI");
+        SceneManager.LoadScene("PvAI");
+        if (SceneManager.GetActiveScene().name == "PVAI")
+        {
+            Debug.Log("PvAI scene is active");
+        }
     }
     public void Quit()
     {

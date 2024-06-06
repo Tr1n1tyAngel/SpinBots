@@ -23,6 +23,10 @@ public class Intro : MonoBehaviour
         {
             gameManager.p2Ready = true;
         }
+        else
+        {
+            gameManager.p2Ready = true;
+        }
         
     }
 }
