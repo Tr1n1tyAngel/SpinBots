@@ -93,7 +93,7 @@ public class BotSelection : MonoBehaviour
         else
         {
 
-            if (!gameManager.p2Ready)
+            if (gameManager.p1Ready)
             {
                 Move bestMove = ai.GetBestMove(gameState);
                 switch (bestMove.Choice)

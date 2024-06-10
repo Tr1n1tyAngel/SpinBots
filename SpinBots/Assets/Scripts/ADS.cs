@@ -13,6 +13,7 @@ public class ADS : MonoBehaviour
 
     private void Start()
     {
+        
         int rndP1 = Random.Range(0, 3);
         switch (rndP1)
         {
@@ -120,7 +121,7 @@ public class ADS : MonoBehaviour
                         EvaluateRound();
                     }
                 }
-                else if(SceneManager.GetActiveScene().name == "PvAI")
+                else
                 {
                     if(gameManager.p2Ready)
                     {
@@ -223,7 +224,15 @@ public class ADS : MonoBehaviour
         else
         {
             gameManager.player2Score++;
-            gameManager.winner = "Player2";
+            if(SceneManager.GetActiveScene().name=="PVP")
+            {
+                gameManager.winner = "Player2";
+            }
+            else
+            {
+                gameManager.winner = "AI";
+            }
+            
             gameManager.winningType = gameManager.player2Choice;
             gameManager.ADSWinner.text = "The winner for round " + gameManager.roundCount + " is:\n" + gameManager.winner + " with " + gameManager.winningType;
             Debug.Log("Player 2 wins the round with " + gameManager.player2Choice + "!");
@@ -246,7 +255,15 @@ public class ADS : MonoBehaviour
             }
             else
             {
-                gameManager.winner = "Player2";
+
+                if (SceneManager.GetActiveScene().name == "PVP")
+                {
+                    gameManager.winner = "Player2";
+                }
+                else
+                {
+                    gameManager.winner = "AI";
+                }
             }
             gameManager.UpdateOverallWinnerStats(gameManager.winner);
             Debug.Log("Game Over: Player 1 Score: " + gameManager.player1Score + " - Player 2 Score: " + gameManager.player2Score);

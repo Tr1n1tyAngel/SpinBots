@@ -4,9 +4,15 @@ using UnityEngine;
 
 public class MinimaxAI
 {
+    private int depth = 3; // Default depth
+
+    public void SetDepth(int newDepth)
+    {
+        depth = newDepth;
+    }
     public Move GetBestMove(GameState initialState)
     {
-        int depth = 3; // Define the depth of the Minimax search
+        
         bool maximizingPlayer = true; // AI starts as maximizing player
 
         return Minimax(initialState, depth, maximizingPlayer).Item2;
@@ -63,11 +69,38 @@ public class MinimaxAI
 
     private int Evaluate(GameState state)
     {
-        
-        return (int)(state.p2AttackStatAI + state.p2DefenseStatAI + state.p2StaminaStatAI -
-                     state.p1AttackStatAI - state.p1DefenseStatAI - state.p1StaminaStatAI);
+        int score = 0;
+
+        // Evaluate each stat separately and consider type advantages/disadvantages
+        score += EvaluateStat(state.p2AttackStatAI, state.p1AttackStatAI, "Attack", "Stamina");
+        score += EvaluateStat(state.p2DefenseStatAI, state.p1DefenseStatAI, "Defense", "Attack");
+        score += EvaluateStat(state.p2StaminaStatAI, state.p1StaminaStatAI, "Stamina", "Defense");
+
+        return score;
     }
 
+    private int EvaluateStat(float aiStat, float playerStat, string aiType, string playerType)
+    {
+        float advantage = 0;
+
+        if (aiStat > playerStat) advantage += 1;
+        if (aiStat < playerStat) advantage -= 1;
+
+        if ((aiType == "Attack" && playerType == "Stamina") ||
+            (aiType == "Defense" && playerType == "Attack") ||
+            (aiType == "Stamina" && playerType == "Defense"))
+        {
+            advantage += 0.5f;
+        }
+        else if ((aiType == "Attack" && playerType == "Defense") ||
+                 (aiType == "Defense" && playerType == "Stamina") ||
+                 (aiType == "Stamina" && playerType == "Attack"))
+        {
+            advantage -= 0.5f;
+        }
+
+        return Mathf.RoundToInt(advantage);
+    }
     private List<Move> GetPossibleMoves(GameState state)
     {
         List<Move> moves = new List<Move>();
@@ -101,6 +134,7 @@ public class MinimaxAI
         switch (move.Type)
         {
             case "SpinBotSelection":
+                float playerHighestStat = Mathf.Max(state.p1AttackStatAI, state.p1DefenseStatAI, state.p1StaminaStatAI);
                 if (move.Choice == "Attack")
                 {
                     state.p2AttackStatAI = 8;

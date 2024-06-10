@@ -64,7 +64,7 @@ public class GameManager : MonoBehaviour
     public List<GameObject> sphere = new List<GameObject>(12);
 
     //AI
-    private MinimaxAI ai;
+    public MinimaxAI ai;
     GameState currentState;
     Move bestMove;
     // Start is called before the first frame update
@@ -166,9 +166,13 @@ public class GameManager : MonoBehaviour
         }
         if (battleTimer <= 300 && ADS1Complete == false && !ADSPanel.activeSelf)
         {
-            bestMove = ai.GetBestMove(currentState);
-            bestMove.Type = "ADS";
-            ApplyMove(bestMove);
+            if (SceneManager.GetActiveScene().name == "PvAI")
+            {
+                bestMove = ai.GetBestMove(currentState);
+                bestMove.Type = "ADS";
+                ApplyMove(bestMove);
+            }
+            
             Time.timeScale = 0;
             ADSPanel.SetActive(true);
             ADS1Complete = true;
@@ -180,9 +184,13 @@ public class GameManager : MonoBehaviour
         }
         if (battleTimer <= 240 && BG1Complete == false && !BGPanel.activeSelf)
         {
-            bestMove = ai.GetBestMove(currentState);
-            bestMove.Type = "Buff";
-            ApplyMove(bestMove);
+            if (SceneManager.GetActiveScene().name == "PvAI")
+            {
+                bestMove = ai.GetBestMove(currentState);
+                bestMove.Type = "Buff";
+                ApplyMove(bestMove);
+            }
+            
             Time.timeScale = 0;
             BGPanel.SetActive(true);
             BG1Complete = true;
@@ -204,9 +212,13 @@ public class GameManager : MonoBehaviour
         }
         if (battleTimer <= 120 && BG2Complete == false && !BGPanel.activeSelf)
         {
-            bestMove = ai.GetBestMove(currentState);
-            bestMove.Type = "Buff";
-            ApplyMove(bestMove);
+            if (SceneManager.GetActiveScene().name == "PvAI")
+            {
+                bestMove = ai.GetBestMove(currentState);
+                bestMove.Type = "Buff";
+                ApplyMove(bestMove);
+            }
+            
             Time.timeScale = 0;
             BGPanel.SetActive(true);
             BG2Complete = true;
@@ -218,9 +230,13 @@ public class GameManager : MonoBehaviour
         }
         if (battleTimer <= 60 && ADS2Complete == false && !ADSPanel.activeSelf)
         {
-            bestMove = ai.GetBestMove(currentState);
-            bestMove.Type = "ADS";
-            ApplyMove(bestMove);
+            if(SceneManager.GetActiveScene().name=="PvAI")
+            {
+                bestMove = ai.GetBestMove(currentState);
+                bestMove.Type = "ADS";
+                ApplyMove(bestMove);
+            }
+            
             Time.timeScale = 0;
             ADSPanel.SetActive(true);
             ADS2Complete = true;
@@ -302,18 +318,37 @@ public class GameManager : MonoBehaviour
         {
             p1ChoiceTxt.text = "Player Choice: Defense";
         }
-        if (p2DefenseType)
+        if(SceneManager.GetActiveScene().name=="PVP")
         {
-            p2ChoiceTxt.text = "Player Choice: Defense";
+            if (p2DefenseType)
+            {
+                p2ChoiceTxt.text = "Player Choice: Defense";
+            }
+            if (p1StaminaType)
+            {
+                p1ChoiceTxt.text = "Player Choice: Stamina";
+            }
+            if (p2StaminaType)
+            {
+                p2ChoiceTxt.text = "Player Choice: Stamina";
+            }
         }
-        if (p1StaminaType)
+        else
         {
-            p1ChoiceTxt.text = "Player Choice: Stamina";
+            if (p2DefenseType)
+            {
+                p2ChoiceTxt.text = "AI Choice: Defense";
+            }
+            if (p1StaminaType)
+            {
+                p1ChoiceTxt.text = "AI Choice: Stamina";
+            }
+            if (p2StaminaType)
+            {
+                p2ChoiceTxt.text = "AI Choice: Stamina";
+            }
         }
-        if (p2StaminaType)
-        {
-            p2ChoiceTxt.text = "Player Choice: Stamina";
-        }
+        
         if(p1Ready && SceneManager.GetActiveScene().name != "PVP") 
         {
             bestMove = ai.GetBestMove(currentState);
@@ -347,7 +382,7 @@ public class GameManager : MonoBehaviour
                 p1SelectedObstacle = cube[rnd];
                 p1CubeRemovedFromArray = true;
             }
-            p1ObstacleTxt.text = "Player Obstacle: Cube";
+            p1ObstacleTxt.text = "Player1 Obstacle: Block";
 
         }
        
@@ -363,8 +398,15 @@ public class GameManager : MonoBehaviour
                 p2SelectedObstacle = cube[rnd];
                 p2CubeRemovedFromArray = true;
             }
-
-            p2ObstacleTxt.text = "Player Obstacle: Cube";
+            if(SceneManager.GetActiveScene().name=="PVP")
+            {
+                p2ObstacleTxt.text = "Player2 Obstacle: Block";
+            }
+            else
+            {
+                p2ObstacleTxt.text = "AI Obstacle: Block";
+            }
+            
         }
        
         if (p1CylinderSelected && !p1CylinderRemovedFromArray)
@@ -378,7 +420,7 @@ public class GameManager : MonoBehaviour
                 p1CylinderRemovedFromArray = true;
             }
 
-            p1ObstacleTxt.text = "Player Obstacle: Cylinder";
+            p1ObstacleTxt.text = "Player1 Obstacle: Pillar";
         }
        
         if (p2CylinderSelected && !p2CylinderRemovedFromArray)
@@ -393,8 +435,15 @@ public class GameManager : MonoBehaviour
                 p2SelectedObstacle = cylinder[rnd];
                 p2CylinderRemovedFromArray = true;
             }
-
-            p2ObstacleTxt.text = "Player Obstacle: Cylinder";
+            if (SceneManager.GetActiveScene().name == "PVP")
+            {
+                p2ObstacleTxt.text = "Player2 Obstacle: Pillar";
+            }
+            else
+            {
+                p2ObstacleTxt.text = "AI Obstacle: Pillar";
+            }
+           
         }
        
         if (p1SphereSelected && !p1SphereRemovedFromArray)
@@ -410,7 +459,7 @@ public class GameManager : MonoBehaviour
                 p1SphereRemovedFromArray = true;
             }
 
-            p1ObstacleTxt.text = "Player Obstacle: Sphere";
+            p1ObstacleTxt.text = "Player1 Obstacle: Slab";
         }
         
         if (p2SphereSelected && !p2SphereRemovedFromArray)
@@ -425,7 +474,15 @@ public class GameManager : MonoBehaviour
                 p2SphereRemovedFromArray = true;
             }
 
-            p2ObstacleTxt.text = "Player Obstacle: Sphere";
+            if (SceneManager.GetActiveScene().name == "PVP")
+            {
+                p2ObstacleTxt.text = "Player2 Obstacle: Slab";
+            }
+            else
+            {
+                p2ObstacleTxt.text = "AI Obstacle: Slab";
+            }
+            
         }
        
         if (p1Ready && p2Ready && obstacleSelectionPanel.activeSelf)
@@ -496,7 +553,7 @@ public class GameManager : MonoBehaviour
             }
 
 
-            p1PowerupTxt.text = "Player Powerup: Charge";
+            p1PowerupTxt.text = "Player1 Powerup: Charge";
         }
        
         if (p2ChargeSelected && !p2ChargeRemovedFromArray)
@@ -510,7 +567,15 @@ public class GameManager : MonoBehaviour
                 p2SelectedPowerup = charge[rnd];
                 p2ChargeRemovedFromArray = true;
             }
-            p2PowerupTxt.text = "Player Powerup: Charge";
+            if (SceneManager.GetActiveScene().name == "PVP")
+            {
+                p2PowerupTxt.text = "Player2 Powerup: Charge";
+            }
+            else
+            {
+                p2PowerupTxt.text = "AI Powerup: Charge";
+            }
+            
         }
        
         if (p1ShieldSelected && !p1ShieldRemovedFromArray)
@@ -524,7 +589,7 @@ public class GameManager : MonoBehaviour
                 p1SelectedPowerup = shield[rnd];
                 p1ShieldRemovedFromArray = true;
             }
-            p1PowerupTxt.text = "Player Powerup: Shield";
+            p1PowerupTxt.text = "Player1 Powerup: Shield";
         }
         
         if (p2ShieldSelected && !p2ShieldRemovedFromArray)
@@ -538,8 +603,15 @@ public class GameManager : MonoBehaviour
                 p2SelectedPowerup = shield[rnd];
                 p2ShieldRemovedFromArray = true;
             }
-
-            p2PowerupTxt.text = "Player Powerup: Shield";
+            if (SceneManager.GetActiveScene().name == "PVP")
+            {
+                p2PowerupTxt.text = "Player2 Powerup: Shield";
+            }
+            else
+            {
+                p2PowerupTxt.text = "AI Powerup: Shield";
+            }
+            
         }
         
         if (p1SpeedBoostSelected && !p1SpeedBoostRemovedFromArray)
@@ -553,7 +625,7 @@ public class GameManager : MonoBehaviour
                 p1SelectedPowerup = speedBoost[rnd];
                 p1SpeedBoostRemovedFromArray = true;
             }
-            p1PowerupTxt.text = "Player Powerup: SpeedBoost";
+            p1PowerupTxt.text = "Player1 Powerup: SpeedBoost";
         }
         
         if (p2SpeedBoostSelected && !p2SpeedBoostRemovedFromArray)
@@ -567,8 +639,15 @@ public class GameManager : MonoBehaviour
                 p2SelectedPowerup = speedBoost[rnd];
                 p2SpeedBoostRemovedFromArray = true;
             }
-
-            p2PowerupTxt.text = "Player Powerup: SpeedBoost";
+            if (SceneManager.GetActiveScene().name == "PVP")
+            {
+                p2PowerupTxt.text = "Player2 Powerup: SpeedBoost";
+            }
+            else
+            {
+                p2PowerupTxt.text = "AI Powerup: SpeedBoost";
+            }
+            
         }
        
         if (p1Ready && p2Ready && powerupSelectionPanel.activeSelf)
@@ -699,6 +778,8 @@ public class GameManager : MonoBehaviour
         
             if (roundCount == 4)
             {
+            if(SceneManager.GetActiveScene().name=="PVP")
+            {
                 ADSWinner.text = "Game Over: Player 1 Score: " + player1Score + "\nPlayer 2 Score: " + player2Score;
                 if (player1Score > player2Score)
                 {
@@ -713,6 +794,24 @@ public class GameManager : MonoBehaviour
                     ADSWinner.text = ADSWinner.text + "\nNeither player won it was a draw overall";
                 }
             }
+            else
+            {
+                ADSWinner.text = "Game Over: Player 1 Score: " + player1Score + "\nAI Score: " + player2Score;
+                if (player1Score > player2Score)
+                {
+                    ADSWinner.text = ADSWinner.text + "\nPlayer 1 Wins Overall";
+                }
+                else if (player1Score < player2Score)
+                {
+                    ADSWinner.text = ADSWinner.text + "\nAI Wins overall";
+                }
+                else
+                {
+                    ADSWinner.text = ADSWinner.text + "\nNeither the player or AI won it was a draw overall";
+                }
+            }
+                
+            }
     }
     public void BGDisplay()
     {
@@ -722,7 +821,15 @@ public class GameManager : MonoBehaviour
         }
         if (bgRoundCount == 4)
         {
-            BGOutcomeTxt.text = "Player 1 got these buffs: " + bgP1BuffList + "\nPlayer 2 got these buffs:" + bgP2BuffList;
+            if(SceneManager.GetActiveScene().name=="PVP")
+            {
+                BGOutcomeTxt.text = "Player 1 got these buffs: " + bgP1BuffList + "\nPlayer 2 got these buffs:" + bgP2BuffList;
+            }
+            else
+            {
+                BGOutcomeTxt.text = "Player 1 got these buffs: " + bgP1BuffList + "\nAI got these buffs:" + bgP2BuffList;
+            }
+            
         }
     }
     public void IncreaseStat(string player, string type)
@@ -823,18 +930,37 @@ public class GameManager : MonoBehaviour
         {
             p1StatsSum = System.MathF.Round(p1AttackStat + p1StaminaStat + p1DefenseStat, 2);
             p2StatsSum = System.MathF.Round(p2AttackStat + p2StaminaStat + p2DefenseStat, 2);
-            if (p1StatsSum > p2StatsSum)
+            if(SceneManager.GetActiveScene().name=="PVP")
             {
-                finalWinnerResultTxt.text = "Player 1 Remaining Stat Total: " + p1StatsSum + "\nPlayer 2 Remaining StatTotal: " + p2StatsSum + "\nPlayer 1 Wins";
-            }
-            else if (p1StatsSum < p2StatsSum)
-            {
-                finalWinnerResultTxt.text = "Player 1 Remaining Stat Total: " + p1StatsSum + "\nPlayer 2 Remaining StatTotal: " + p2StatsSum + "\nPlayer 2 Wins";
+                if (p1StatsSum > p2StatsSum)
+                {
+                    finalWinnerResultTxt.text = "Player 1 Remaining Stat Total: " + p1StatsSum + "\nPlayer 2 Remaining StatTotal: " + p2StatsSum + "\nPlayer 1 Wins";
+                }
+                else if (p1StatsSum < p2StatsSum)
+                {
+                    finalWinnerResultTxt.text = "Player 1 Remaining Stat Total: " + p1StatsSum + "\nPlayer 2 Remaining StatTotal: " + p2StatsSum + "\nPlayer 2 Wins";
+                }
+                else
+                {
+                    finalWinnerResultTxt.text = "Player 1 Remaining Stat Total: " + p1StatsSum + "\nPlayer 2 Remaining StatTotal: " + p2StatsSum + "\nIts a draw";
+                }
             }
             else
             {
-                finalWinnerResultTxt.text = "Player 1 Remaining Stat Total: " + p1StatsSum + "\nPlayer 2 Remaining StatTotal: " + p2StatsSum + "\nIts a draw";
+                if (p1StatsSum > p2StatsSum)
+                {
+                    finalWinnerResultTxt.text = "Player 1 Remaining Stat Total: " + p1StatsSum + "\nAI Remaining StatTotal: " + p2StatsSum + "\nPlayer 1 Wins";
+                }
+                else if (p1StatsSum < p2StatsSum)
+                {
+                    finalWinnerResultTxt.text = "Player 1 Remaining Stat Total: " + p1StatsSum + "\nAI Remaining StatTotal: " + p2StatsSum + "\nAI Wins";
+                }
+                else
+                {
+                    finalWinnerResultTxt.text = "Player 1 Remaining Stat Total: " + p1StatsSum + "\nAI Remaining StatTotal: " + p2StatsSum + "\nIts a draw";
+                }
             }
+            
         }
         
         StartCoroutine(BackToMainMenu());

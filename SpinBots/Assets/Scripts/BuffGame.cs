@@ -11,6 +11,7 @@ public class BuffGame : MonoBehaviour
 
     private void Start()
     {
+        
         ai = new MinimaxAI();
         gameState = new GameState
         {
@@ -94,11 +95,27 @@ public class BuffGame : MonoBehaviour
             gameManager.IncreaseStat("Player2", gameManager.player2Choice);
             gameManager.bgP1BuffList= gameManager.bgP1BuffList + "\n" + gameManager.player1Choice;
             gameManager.bgP2BuffList = gameManager.bgP2BuffList + "\n" + gameManager.player2Choice;
-            gameManager.BGOutcomeTxt.text = "Player 1 chose: " + gameManager.player1Choice + "\n Player 2 chose: " +gameManager.player2Choice +"\n their choices are different both players get the buffs they wanted";
+            if (SceneManager.GetActiveScene().name == "PVP")
+            {
+                gameManager.BGOutcomeTxt.text = "Player 1 chose: " + gameManager.player1Choice + "\n Player 2 chose: " + gameManager.player2Choice + "\n their choices are different both players get the buffs they wanted";
+            }
+            else
+            {
+                gameManager.BGOutcomeTxt.text = "Player 1 chose: " + gameManager.player1Choice + "\n AI chose: " + gameManager.player2Choice + "\n their choices are different the player and AI get the buffs they wanted";
+            }
+            
         }
         else
         {
-            gameManager.BGOutcomeTxt.text = "Player 1 chose: " + gameManager.player1Choice + "\n Player 2 chose: " + gameManager.player2Choice + "\n their choices are the same neither player gets the buff they wanted";
+            if (SceneManager.GetActiveScene().name == "PVP")
+            {
+                gameManager.BGOutcomeTxt.text = "Player 1 chose: " + gameManager.player1Choice + "\n Player 2 chose: " + gameManager.player2Choice + "\n their choices are the same neither player gets the buff they wanted";
+            }
+            else
+            {
+                gameManager.BGOutcomeTxt.text = "Player 1 chose: " + gameManager.player1Choice + "\n AI chose: " + gameManager.player2Choice + "\n their choices are the same neither the player or AI gets the buff they wanted";
+            }
+            
         }
         gameManager.bgRoundCount++;
         if (gameManager.bgRoundCount < 4)
@@ -110,7 +127,11 @@ public class BuffGame : MonoBehaviour
     private void ResetRound()
     {
         gameManager.p1Ready = false;
-        gameManager.p2Ready = false;
+        if(SceneManager.GetActiveScene().name=="PVP")
+        {
+            gameManager.p2Ready = false;
+        }
+        
         RandomizeChoices();
     }
 

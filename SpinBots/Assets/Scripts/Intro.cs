@@ -23,7 +23,7 @@ public class Intro : MonoBehaviour
         {
             gameManager.p2Ready = true;
         }
-        else
+        else if(SceneManager.GetActiveScene().name == "PvAI")
         {
             gameManager.p2Ready = true;
         }

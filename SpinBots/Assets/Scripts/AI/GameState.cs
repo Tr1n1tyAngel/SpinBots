@@ -42,13 +42,21 @@ public class GameState
             return gameOverAI; 
         }
 
-        public int GetResult()
-        {
-        if (p2AttackStatAI + p2DefenseStatAI + p2StaminaStatAI > p1AttackStatAI + p1DefenseStatAI + p1StaminaStatAI)
+    public int GetResult()
+    {
+        int score = 0;
+
+        // Evaluate each stat separately and consider type advantages/disadvantages
+        score += EvaluateStat(p2AttackStatAI, p1AttackStatAI, "Attack", "Stamina");
+        score += EvaluateStat(p2DefenseStatAI, p1DefenseStatAI, "Defense", "Attack");
+        score += EvaluateStat(p2StaminaStatAI, p1StaminaStatAI, "Stamina", "Defense");
+
+        // Determine result based on score
+        if (score > 0)
         {
             return 1; // AI wins
         }
-        else if (p2AttackStatAI + p2DefenseStatAI + p2StaminaStatAI < p1AttackStatAI + p1DefenseStatAI + p1StaminaStatAI)
+        else if (score < 0)
         {
             return 0; // Player wins
         }
@@ -57,5 +65,29 @@ public class GameState
             return -1; // Draw
         }
     }
+
+    private int EvaluateStat(float aiStat, float playerStat, string aiType, string playerType)
+    {
+        float advantage = 0;
+
+        if (aiStat > playerStat) advantage += 1;
+        if (aiStat < playerStat) advantage -= 1;
+
+        if ((aiType == "Attack" && playerType == "Stamina") ||
+            (aiType == "Defense" && playerType == "Attack") ||
+            (aiType == "Stamina" && playerType == "Defense"))
+        {
+            advantage += 0.5f;
+        }
+        else if ((aiType == "Attack" && playerType == "Defense") ||
+                 (aiType == "Defense" && playerType == "Stamina") ||
+                 (aiType == "Stamina" && playerType == "Attack"))
+        {
+            advantage -= 0.5f;
+        }
+
+        return Mathf.RoundToInt(advantage);
+    }
 }
+
 
